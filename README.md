@@ -29,16 +29,16 @@ This is an AI-powered Investment Planner built using **Google Gemini** (Generati
 git clone https://github.com/yourusername/investment-planner.git
 cd investment-planner
 ```
-2. Create a Virtual Environment
+### 2. Create a Virtual Environment
 ```bash
 python -m venv venv
 source venv/bin/activate  # or `venv\Scripts\activate` on Windows
 ```
-3. Install Dependencies
+### 3. Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
-4. Add Your Google API Key
+### 4. Add Your Google API Key
 You have two options:
 
 Option A: Add to secrets.toml (recommended) <br>
