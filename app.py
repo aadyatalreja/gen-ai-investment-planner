@@ -5,7 +5,6 @@ import os
 import random
 import time
 
-# Set page configuration
 st.set_page_config(
     page_title="Investment Planner",
     page_icon="📈",
@@ -13,7 +12,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Updated CSS: Keep structure but improve text readability with better contrast
 st.markdown("""
 <style>
     :root {
@@ -151,25 +149,19 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Main title in its own container
 with st.container():
     st.markdown("""
     <h1 class="main-title">INVESTMENT PLANNER</h1>
     """, unsafe_allow_html=True)
 
-# Set timestamp in state to track session
 if 'init_timestamp' not in st.session_state:
     st.session_state.init_timestamp = int(time.time())
 
-# Better API key handling with multiple fallback options
 try:
-    # Try to get API key from Streamlit secrets
     GOOGLE_API_KEY = st.secrets["GOOGLE_API_KEY"]
 except:
-    # Fallback to environment variable or allow user input
     GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY", "")
     
-    # If still not available, allow user input
     if not GOOGLE_API_KEY:
         with st.container():
             
@@ -179,18 +171,15 @@ except:
                 st.warning("Please enter a Google API Key to continue.")
                 st.stop()
 
-# Configure the API
 genai.configure(api_key=GOOGLE_API_KEY)
 
-# Get the list of available models to handle potential model naming issues
 try:
     available_models = [model.name.split('/')[-1] for model in genai.list_models()]
     with st.sidebar:
         st.write("Available models:", available_models)
     
-    # Check if gemini-pro is in the list, otherwise use the first available model
     if 'gemini-1.5-pro' in available_models:
-        model_name = 'gemini-1.5-pro'  # Updated model name
+        model_name = 'gemini-1.5-pro'  
     elif 'gemini-pro' in available_models:
         model_name = 'gemini-pro'
     elif available_models:
@@ -206,15 +195,12 @@ try:
 except Exception as e:
     with st.sidebar:
         st.error(f"Error listing models: {str(e)}")
-    # Fall back to latest known model name
-    model_name = 'gemini-1.5-pro'  # Updated to newer model version
+    model_name = 'gemini-1.5-pro'  
     model = genai.GenerativeModel(model_name)
     with st.sidebar:
         st.info(f"Attempting to use model: {model_name}")
 
-# Input section in its own container
 with st.container():
-    # Create two columns for input fields
     col1, col2 = st.columns(2)
 
     with col1:
@@ -234,12 +220,10 @@ with st.container():
         debt = st.selectbox('Do you have any existing debt? ', 
                            ('Yes', 'No'))
 
-    # Create a single column for the remaining inputs
     invest = st.number_input('How much investable money do you have available? (in Rupees) ', 
                             min_value=0, 
                             step=1000)
 
-    # Add explanatory text above the slider
     st.write("On a scale of 1-10, where 1 is very conservative and 10 is highly aggressive:")
     scale = st.slider("How comfortable are you with risk? ", 
                      min_value=1, 
@@ -247,7 +231,6 @@ with st.container():
                      value=5,
                      step=1)
 
-# Format user data for the prompt
 user_data = f"""
 - Primary financial goal is {goal}
 - My current income level is {income} Rupees
@@ -257,7 +240,6 @@ user_data = f"""
 - Risk comfort level is {scale} out of 10
 """
 
-# Define the expected output format
 output_format = """
 {
     "Understanding Your Situation": "A concise assessment of the user's financial situation, goals, and constraints",
@@ -267,10 +249,8 @@ output_format = """
 }
 """
 
-# Create the prompt
-prompt = f"{user_data}\n\nBased on the above details, suggest an investment plan. Return the response in JSON format with the following structure: {output_format}"
+prompt = f"{user_data}\n\nBased on the above details, suggest an investment plan. Return the response in JSON format with the following structure: {output_format}. Give me a paragraph for each subsection."
 
-# Function to generate text from Gemini with better error handling
 def generate_investment_plan(prompt):
     try:
         response = model.generate_content(prompt)
@@ -281,20 +261,15 @@ def generate_investment_plan(prompt):
             return f"Error: The model '{model_name}' is not available. Please check your API key permissions or try a different model."
         return f"Error generating investment plan: {str(e)}"
 
-# Create a button with improved styling
 if st.button(" Generate Your Investment Plan! "):
     with st.spinner('Creating your personalized investment plan... '):
         try:
-            # Generate the investment plan
             response_text = generate_investment_plan(prompt)
             
-            # Check if the response contains error message
             if response_text.startswith("Error:"):
                 st.error(response_text)
             else:
-                # Extract JSON from response if needed
                 try:
-    # Try to extract JSON from a markdown code block
                     if "```json" in response_text:
                         json_content = response_text.split("```json")[1].split("```")[0].strip()
                     elif "```" in response_text:
@@ -302,10 +277,8 @@ if st.button(" Generate Your Investment Plan! "):
                     else:
                         json_content = response_text
                         
-                    # Parse the JSON
                     investment_plan = json.loads(json_content)
                     
-                    # Display the results in a well-structured container
                     with st.container():
                         st.markdown("""
                         <div class="results-container">
@@ -314,7 +287,6 @@ if st.button(" Generate Your Investment Plan! "):
                             </h2>
                         """, unsafe_allow_html=True)
                         
-                        # Use columns for better organization
                         col1, col2 = st.columns([1, 1])
                         
                         with col1:
@@ -340,7 +312,6 @@ if st.button(" Generate Your Investment Plan! "):
             st.error(f"An error occurred: {str(e)}")
             st.write("Please try again with different parameters.")
 
-# Add a decorative footer in its own container
 with st.container():
     st.markdown("""
     <div style="text-align: center; margin-top: 4rem; padding: 1rem; border-top: 1px solid rgba(59, 130, 246, 0.2);">
