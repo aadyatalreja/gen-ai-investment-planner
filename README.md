@@ -26,7 +26,7 @@ This is an AI-powered Investment Planner built using **Google Gemini** (Generati
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/investment-planner.git
+git clone https://github.com/aadyatalreja/investment-planner.git
 cd investment-planner
 ```
 ### 2. Create a Virtual Environment
